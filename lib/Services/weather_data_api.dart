@@ -28,7 +28,7 @@ Future<dynamic> getWeatherData(String city)async {
 }
 
 Future<dynamic>  getData(double lat,double lon)async{
-    final response = await http.get(Uri.parse("http://api.openweathermap.org/data/2.5/forecast?lat=32.1617&lon=74.1883&appid=0adc9508600058dfc5cce552a10735e6"));
+    final response = await http.get(Uri.parse("http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=0adc9508600058dfc5cce552a10735e6"));
 
     var data = jsonDecode(response.body);
     if (response.statusCode == 200) {
