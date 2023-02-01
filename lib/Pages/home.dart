@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:weather/ModelClasses/weather_info.dart';
-import 'package:weather/Services/weather_data_api.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:weather/Services/base_url.dart';
+import 'package:weather/Services/weather_data_api.dart';
+import 'package:http/http.dart' as http;
+import 'package:weather/Widgets/temperature_tile.dart';
 class HomeScreen extends StatefulWidget {
 
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,14 +17,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController textEditingController=TextEditingController();
   WeatherService weatherService=WeatherService();
-  double? lat;
-  double? lon;
+ //List tempData=[];
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
+      backgroundColor: Colors.deepPurple[200],
       appBar: AppBar(
+        backgroundColor: Colors.deepPurple,
         title: const Text("Weather"),
         centerTitle: true,
       ),
@@ -36,38 +41,45 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
+            Expanded(
+                child:FutureBuilder(
+                      future: weatherService.getWeatherData(textEditingController.text.toLowerCase()),
+                    builder: (context,snap){
+                    if(snap.hasData){
+                        List tempList=snap.data['list'];
+                       // print(tempList);
+                     /* for(int i=0;i<tempList.length;i++){
+                        tempData.add(snap.data['list'][i]);
+                      }*/
 
-          Expanded(child: FutureBuilder(
-              future: weatherService.getWeatherData(textEditingController.text.toLowerCase()),
-              builder: (context,AsyncSnapshot<WeatherInfo?> snap){
-                if(snap.hasData) {
-                   lat=snap.data!.coord!.lat;
-                  lon=snap.data!.coord!.lon;
+                      return ListView.builder(
+                          itemCount: tempList.length,
+                          itemBuilder: (context,index){
+                            double temperature=((tempList[index]['main']['temp'])-273.15);
+                           var time=DateFormat('h:mma').format(DateTime.fromMillisecondsSinceEpoch(tempList[index]['dt'] * 1000));
+                           var day=DateFormat('EEEE').format(DateTime.fromMillisecondsSinceEpoch(tempList[index]['dt'] * 1000));
+                           var date=DateFormat('yMd').format(DateTime.fromMillisecondsSinceEpoch(tempList[index]['dt'] * 1000));
 
-                  var temperature= ((snap.data!.main!.temp)!-273.15).ceil();
-                  var feelsLike= ((snap.data!.main!.feelsLike)!-273.15).ceil();
-
-                  return Column(
-                    children: [
-                      Text("Temperature: ${temperature} C\°" ?? "",style: TextStyle(fontSize: 21,fontWeight: FontWeight.bold),),
-                      Text("feels like: ${feelsLike} C\°" ?? "",style: TextStyle(fontSize: 21,fontWeight: FontWeight.bold)),
-                      Text("Sky: ${snap.data!.weather![0].description}" ?? "",style: TextStyle(fontSize: 21,fontWeight: FontWeight.bold)),
-                      Text("Humidity: ${snap.data!.main!.humidity.toString()}" ?? "",style: TextStyle(fontSize: 21,fontWeight: FontWeight.bold)),
-                      Text("Country: ${snap.data!.sys!.country.toString()}" ?? "",style: TextStyle(fontSize: 21,fontWeight: FontWeight.bold)),
-                      SizedBox(height: 50,),
-                    ],
-                  );
-                }else{
-                  return Text("Loading..");
-                }
-          })),
+                        return   TemperatureTile(temperature: temperature.toInt(),
+                          date: date, time: time, day: day,);
+                     /*   return ListTile(
+                          title: Text("${temperature.ceil()}°C"),
+                          subtitle:Text("${time}  ${date}") ,
+                          trailing: Text(tempList[index]['weather'][0]['main'].toString()),
+                          leading: Text(index.toString()),
+                        );*/
+                      });
+                    }else{
+                      return const Center(child: Text("Loading..."));
+                    }
+                }) )
         ],
       ),
     );
   }
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
+      super.initState();
   }
+
 }

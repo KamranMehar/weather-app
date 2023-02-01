@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
             statusBarIconBrightness: Brightness.light
           )
         ),
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.deepPurple,
       ),
       home: HomeScreen(),
     );
