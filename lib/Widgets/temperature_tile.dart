@@ -24,7 +24,7 @@ class TemperatureTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.3),
           border: Border.all(color: Colors.white,width: 1),
-          borderRadius: BorderRadius.circular(20)
+          borderRadius: BorderRadius.circular(50)
         ),
         child: Column(
           children: [
