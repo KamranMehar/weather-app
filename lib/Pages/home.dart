@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:weather/Pages/weely_list.dart';
 import 'package:weather/Services/weather_data_api.dart';
 import 'package:weather/Widgets/daily_tile.dart';
 import 'package:weather/Widgets/hourly_tile.dart';
@@ -14,8 +15,9 @@ import 'package:weather/util/custom_toast.dart';
 
 class HomeScreen extends StatefulWidget {
   static StreamController<String> cityStrm = StreamController<String>.broadcast();
-
-  const HomeScreen({Key? key}) : super(key: key);
+  double lat;
+  double lon;
+   HomeScreen({Key? key,required this.lat,required this.lon}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -32,17 +34,15 @@ class _HomeScreenState extends State<HomeScreen> {
   WeatherService weatherService = WeatherService();
  // String cityName = 'Weather';
   String time = '';
-  late double lat;
-  late double long;
+
  // int _index = 0;
-  List tempList = [];
+  List weeklyList = [];
   List hourlyList=[];
 
   @override
   Widget build(BuildContext context) {
     print("build");
- // final provider= Provider.of<WeatherServiceProvider>(context,listen: false);
-    return Container(
+   return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -88,23 +88,22 @@ class _HomeScreenState extends State<HomeScreen> {
           body: SingleChildScrollView(
             child: SafeArea(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-
                    SizedBox(
                       height: MediaQuery.of(context).size.height *4/12,
                       child:
                   FutureBuilder(
-                      future:weatherService.getWeeklyData(32.1617,74.1883),
+                      future:weatherService.getWeeklyData(widget.lat,widget.lon),
                       builder: (context, snap) {
                         if (snap.hasData) {
-                        tempList = snap.data!;
-
+                        weeklyList = snap.data!;
                           return CarouselSlider.builder(
-                              itemCount: (tempList.length)~/8,
+                              itemCount: (weeklyList.length)~/8,
                               itemBuilder: (context, index, realIndex) {
 
-                                double temperature = ((tempList[index]['main']['temp']) - 273.15);
-                                var date = DateTime.fromMillisecondsSinceEpoch(tempList[index]['dt'] * 1000);
+                                double temperature = ((weeklyList[index]['main']['temp']) - 273.15);
+                                var date = DateTime.fromMillisecondsSinceEpoch(weeklyList[index]['dt'] * 1000);
                                 time = DateFormat('h:mma').format(date);
                                 var day = DateFormat('EEEE').format(date);
                                 var dateDay = DateFormat('d').format(date);
@@ -112,10 +111,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 var dateYear = DateFormat('y').format(date);
 
 
-                                humidityStrm.sink.add("${tempList[index]['main']['humidity']}%");
-                                windStrm.sink.add("${tempList[index]['wind']['speed']}m/sec");
-                                airPressureStrm.sink.add("${tempList[index]['main']['pressure']}hPa");
-                                visibilityStrm.sink.add("${tempList[index]['visibility'] / 1000}km");
+                                humidityStrm.sink.add("${weeklyList[index]['main']['humidity']}%");
+                                windStrm.sink.add("${weeklyList[index]['wind']['speed']}m/sec");
+                                airPressureStrm.sink.add("${weeklyList[index]['main']['pressure']}hPa");
+                                visibilityStrm.sink.add("${weeklyList[index]['visibility'] / 1000}km");
                                 timeStrm.sink.add(time);
 
                                 return DailyTile(
@@ -124,8 +123,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   day: day,
                                   dateMonth: dateMonth,
                                   dateYear: dateYear,
-                                  weatherStatus: tempList[index]['weather'][0]['description'],
-                                  icon: tempList[index]['weather'][0]['icon'],
+                                  weatherStatus: weeklyList[index]['weather'][0]['description'],
+                                  icon: weeklyList[index]['weather'][0]['icon'],
                                 );
                               },
                               options: CarouselOptions(
@@ -138,19 +137,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 enableInfiniteScroll: false,
                                 reverse: false,
                                 autoPlay: false,
-                                autoPlayInterval:
-                                const Duration(seconds: 3),
-                                autoPlayAnimationDuration:
-                                const Duration(milliseconds: 800),
-                                autoPlayCurve: Curves.fastOutSlowIn,
                                 enlargeCenterPage: false,
                                 onPageChanged: (index, reason){
-                                  humidityStrm.sink.add("${tempList[index]['main']['humidity']}%");
-                                  windStrm.sink.add("${tempList[index]['wind']['speed']}m/sec");
-                                  airPressureStrm.sink.add("${tempList[index]['main']['pressure']}hPa");
-                                  visibilityStrm.sink.add("${tempList[index]['visibility'] / 1000}km");
+                                  print("onChange:index: $index ReasonIndex: ${reason.index}");
+                                  humidityStrm.sink.add("${weeklyList[index]['main']['humidity']}%");
+                                  windStrm.sink.add("${weeklyList[index]['wind']['speed']}m/sec");
+                                  airPressureStrm.sink.add("${weeklyList[index]['main']['pressure']}hPa");
+                                  visibilityStrm.sink.add("${weeklyList[index]['visibility'] / 1000}km");
 
-                                  var date = DateTime.fromMillisecondsSinceEpoch(tempList[index]['dt'] * 1000);
+                                  var date = DateTime.fromMillisecondsSinceEpoch(weeklyList[index]['dt'] * 1000);
                                  var time = DateFormat('h:mma').format(date);
                                  timeStrm.sink.add(time);
 
@@ -220,20 +215,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment:
                       MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text(
+                      children:  [
+                        const Text(
                           "Today",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
                         ),
-                        Text(
-                          "Next 7 Days >",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),
+                        InkWell(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>FutureWeather(weeklyList:weeklyList,)));
+                          },
+                          child: const Text(
+                            "Next 7 Days >",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18),
+                          ),
                         ),
                       ],
                     ),
@@ -241,10 +241,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height *3/12,
                     child: FutureBuilder(
-                        future: weatherService.getHourlyData(32.1617,74.1883),
+                        future: weatherService.getHourlyData(widget.lat,widget.lon),
                         builder: (context,snap){
                       if(snap.connectionState==ConnectionState.waiting){
-                        return const Center(child: CircularProgressIndicator(color: Colors.deepPurple,));
+                        return const Center(
+                            child: CircularProgressIndicator(color: Colors.deepPurple,));
                       }else if(snap.hasData){
                         hourlyList=snap.data!;
                         return ListView.builder(
@@ -254,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             itemBuilder: (context,index){
                           var date = DateTime.fromMillisecondsSinceEpoch(hourlyList[index]['dt'] * 1000);
                           var time = DateFormat('h:mma').format(date);
-                          double temperature = ((tempList[index]['main']['temp']) - 273.15);
+                          double temperature = ((hourlyList[index]['main']['temp']) - 273.15);
                           return HourlyTile(
                               colorText: index==0?Colors.white:Colors.black,
                               colorTile: index==0?Colors.deepPurple:Colors.white,
@@ -275,71 +276,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      UtilToast.showToast("Turn on the Location !");
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        UtilToast.showToast("Location permission is denied !");
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      UtilToast.showToast("Location permissions are permanently denied, we cannot request permissions !");
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-  }
-
-  getLatLong() {
-    Future<Position> data = _determinePosition();
-    data.then((value) {
-      if (kDebugMode) {
-        print("value $value");
-      }
-      lat = value.latitude;
-      long = value.longitude;
-
-     // getAddress(value.latitude, value.longitude);
-    }).catchError((error) {
-      if (kDebugMode) {
-        print("Error $error");
-      }
-    });
-  }
-/*
-//For convert lat long to address
-  getAddress(lat, long) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
-    setState(() {
-      cityName = "${placemarks[0].locality!}";
-      textEditingController.clear();
-      textEditingController.text = cityName;
-    });
-  }*/
 
   @override
   void initState() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:weather/Pages/get_location.dart';
 import 'package:weather/Pages/home.dart';
 
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
           ),
           primarySwatch: Colors.deepPurple,
         ),
-        home: HomeScreen(),
+        home: GetLocation(),
       );
   }
 }
