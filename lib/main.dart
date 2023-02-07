@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:weather/Pages/home.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
@@ -12,20 +13,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarBrightness: Brightness.light,
-            statusBarIconBrightness: Brightness.light
-          )
+    return  MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarBrightness: Brightness.light,
+              statusBarIconBrightness: Brightness.light,
+            )
+          ),
+          primarySwatch: Colors.deepPurple,
         ),
-        primarySwatch: Colors.deepPurple,
-      ),
-      home: HomeScreen(),
-    );
+        home: HomeScreen(),
+      );
   }
 }

@@ -37,6 +37,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: any
   intl: ^0.18.0
+  carousel_slider: ^4.2.1
+  geolocator: any
+  geocoding: any
+  fluttertoast: ^8.1.2
 
 dev_dependencies:
   flutter_test:
@@ -62,7 +66,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - Assets/
+    - lib/icons/
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
