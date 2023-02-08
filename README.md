@@ -1,16 +1,14 @@
-# weather
+# weather forecast App
 
-A new Flutter project.
+Weather Forecast of 5 days 3 / hour of Your Current Location with Awsome UI.
 
-## Getting Started
+1) First Launch ask the permission of your Location 
+2) Give Persmission to your Location
+3) Enjoy the weather Updates with Awsome UI
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+UI:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+![WeatherApp](https://user-images.githubusercontent.com/82234954/217571558-16787797-4eaf-446c-8623-66c0899f3478.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
